@@ -1,0 +1,76 @@
+= Hello world in typescript
+:source-highlighter: rouge
+
+. Make sure tsc is installed `+npm install -g typescript+`
+. cd to an empty dir
+. `+npm init -y+` (will create `package.json`)
+. extend one of the https://github.com/tsconfig/bases[@tsconfig/base]  configs in `tsconfig.json`
++
+.tsconfig.json
+[source,json,highlight=4]
+----
+{
+    "extends": "@tsconfig/node16/tsconfig.json",
+    "include": ["src/**/*"], // <1>
+    "exclude": ["node_modules", "**/*.spec.ts"],
+    "compilerOptions": {
+        "outDir": "./dist/" // <2>
+    }
+}
+----
+<1>  input files are in `src`
+<2> Specifying output dir not to mix generated code with `.ts` files.
+
+== On the fly compilation and debugging
+
+. install `+ts-node-dev+`
++
+[,terminal]
+----
+npm i -D ts-node-dev+
+----
+
+. Add to `package.json`
++
+[,json]
+----
+{
+  "scripts": {
+    "start": "tsnd --inspect=0.0.0.0:9229 --respawn --log-error ./src/app.ts",
+  }
+}
+----
+
+== Use includes with `@` aliases
+=== in dev with `tsnd`
+. Install `tsconfig-paths`
++
+[,shell]
+----
+npm i -D tsconfig-paths
+----
++
+. When running `tsnd`, provide `-r tsconfig-paths/register`
++
+[,json]
+----
+{
+  "scripts": {
+    "start-with-tsconfig-path": "tsnd --inspect=0.0.0.0:9229 --respawn --log-error -r tsconfig-paths/register ./src/app.ts",
+  }
+}
+----
+
+=== in prod use `tsc-alias`
+. `+npm i -D tsc-alias+`
+. provide `"baseUrl": "./src",` in `tsconfig.json`
++
+[,json]
+----
+{
+  "scripts": {
+    "build": "tsc; npx run tsc-alias",
+    "prod": "npm run build && node ./dist/app.js"
+  }
+}
+----
